@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BIN_NAME="woosh"
+BIN_NAME="woosh-d"
 make debug
 
 ./$BIN_NAME test-script-exit0

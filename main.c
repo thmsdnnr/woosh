@@ -4,7 +4,7 @@
 // main is the entrypoint to the woosh shell.
 int main(int argc, char **argv)
 {
-	FILE *in_file = get_input_file(argc, argv);
+	FILE *in_file = get_input_file_or_die(argc, argv);
 	int retval = 0;
 	while ((retval = cycle(in_file)) == 0)
 		;

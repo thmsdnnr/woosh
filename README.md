@@ -50,6 +50,7 @@ The interface for a shell could not be simpler. Text and input-output streams ar
 
 #### Shell Features
 
+- [ ] command pipelines `|`
 - [ ] signal handling for processes
 - [ ] variables and variables expansion (hashtable)
 - [ ] implement `$?` to echo the last known return value

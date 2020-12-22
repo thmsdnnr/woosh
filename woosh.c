@@ -23,7 +23,7 @@ char *calloc_char_or_die(int howlong)
 	return result;
 }
 
-// build_argv split from_string on spaces into char** array, storing pointer to array in out_result.
+// build_argv splits from_string on spaces into char** array, storing pointer to array in out_result.
 // Returns the number of arguments parsed, -1 on failure. Caller must free out_result.
 // For example, build_argv("ls -ahlrt") will allocate the list ["ls", "-ahlrt", NULL].
 int build_argv(char *from_string, char ***out_result)
@@ -93,7 +93,7 @@ int fork_exec_command(char **argv)
 	if (ret < 0)
 	{
 		perror("process_command_from_argv fork");
-		exit(EXIT_FAILURE);
+		return STATUS_FORK_FAIL;
 	}
 	else if (ret == 0)
 	{
@@ -125,12 +125,14 @@ int fork_exec_command(char **argv)
 }
 
 // process_command_from_argv processes the command at *argv with possible arguments.
-// It implements two built-in commands, "exit" to quit and "cd" to change directories.
-// Otherwise it forks and executes the command in a child process.
+// It implements three built-in commands, "exit" to quit, "cd" to change directories
+// and "help" for help. Otherwise it forks and executes the command if it is found
+// in the user's PATH, in a child process.
 int process_command_from_argv(char **argv)
 {
 	if (argv == NULL || *argv == NULL)
 		return STATUS_EXIT;
+
 	int exit_with = 0;
 	if (strncmp(*argv, "exit", 4) == 0)
 	{
@@ -141,7 +143,7 @@ int process_command_from_argv(char **argv)
 		if (chdir(*(argv + 1)) != 0)
 		{
 			perror("chdir");
-			exit(EXIT_FAILURE);
+			exit_with = EXIT_FAILURE;
 		}
 	}
 	else if (strncmp(*argv, "help", 4) == 0)
@@ -172,15 +174,16 @@ void trim_right(char *str, const char to_trim, const char replace_with)
 // 1) Fetch the user input
 // 2) Parse the line
 // 3) Execute the command
-// 4) Outputs the result.
+// 4) Output the result
 // Cycle uses the file pointer @in_file for input. This can be stdin or a file.
 int cycle(FILE *in_file)
 {
+	// Only print a prompt if we're running in interactive mode.
 	if (isatty(fileno(in_file)))
 		prompt();
-	char buf[MAX_INPUT_LENGTH] = {0};
 
 	// Fetch a line of input from the user.
+	char buf[MAX_INPUT_LENGTH] = {0};
 	if (fgets(buf, MAX_INPUT_LENGTH, in_file) != NULL)
 	{
 		if (feof(in_file))
@@ -193,6 +196,8 @@ int cycle(FILE *in_file)
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	// Trim any trailing newline, then run the command.
 	trim_right(buf, '\n', '\0');
 
 	char **parsed_args = NULL;
@@ -204,15 +209,12 @@ int cycle(FILE *in_file)
 		return STATUS_TOO_MANY_ARGS;
 	}
 
-	// process the command
 	return process_command_from_argv(parsed_args);
 }
 
-// get_input_file parses the command line arguments and returns a file descriptor
-// for the program's input. This could either be stdin if interactive mode or
-// otherwise a shell script file if one is provided. For now we simply ignore
-// extra arguments to the program.
-FILE *get_input_file(int argc, char **argv)
+// get_input_file_or_die fetches the input file for the shell, either stdin or the command
+// file given in command line arguments. Prints usage if invoked with "help" or "--help".
+FILE *get_input_file_or_die(int argc, char **argv)
 {
 	FILE *fd_to_return = stdin;
 	DEBUG_PRINT("woosh invoked, arg ct: %d\n", argc);

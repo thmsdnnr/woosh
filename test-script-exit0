@@ -1,0 +1,8 @@
+ls
+pwd
+touch test
+ls
+rm test
+ls
+ps
+exit

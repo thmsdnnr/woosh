@@ -11,6 +11,23 @@
 `./test.sh` to run some tests.
 ## What Is This?
 
+```
+$ ./woosh help
+                                    __
+ _      __  ____   ____    _____   / /_
+| | /| / / / __ \ / __ \  / ___/  / __ \
+| |/ |/ / / /_/ // /_/ / (__  )  / / / / =^.^=
+|__/|__/  \____/ \____/ /____/  /_/ /_/  v0.0.1
+
+woosh [no arguments]
+	Runs woosh in interactive mode.
+	Enter `exit` command or press Ctrl+C to quit.
+
+woosh ./path/to/woosh-script [optional argument]
+	woosh-script is a newline-delimited file of woosh commands.
+	woosh runs every line, exiting upon the first error.
+```
+
 `woosh` is much less fully-featured and not intended to become a replacement for a day-to-day shell. Features are only implemented if they serve a pedagogical purpose, not if they provide ergonomics for the user, as this is a learning project. It is written in [ANSI C99](https://en.wikipedia.org/wiki/C99) without any external libraries.
 
 It should be reasonably portable to any Linux/Unix machines.
